@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur</title>
+    <title>Calculateur de Couvertine</title>
     <style>
         * {
             margin: 0;
@@ -57,9 +57,9 @@
         }
 
         header {
-            position: relative;
             text-align: center;
             margin-bottom: 40px;
+            padding-top: 10px;
         }
 
         h1 {
@@ -74,25 +74,31 @@
         }
 
         .theme-toggle {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--bg-primary);
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
             border: 2px solid var(--border-color);
             border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
+            z-index: 1000;
+            box-shadow: 0 4px 12px var(--shadow);
         }
 
         .theme-toggle:hover {
             transform: scale(1.1);
             border-color: var(--accent);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.95);
         }
 
         .form-group {
@@ -145,8 +151,7 @@
         }
 
         .result-container {
-            margin-top: 30px;
-            text-align: center;
+            margin-bottom: 30px;
         }
 
         .result-box {
@@ -177,6 +182,12 @@
             color: var(--text-primary);
         }
 
+        .result-unit {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-left: 5px;
+        }
+
         .result-status {
             margin-top: 10px;
             font-size: 0.85rem;
@@ -193,7 +204,8 @@
 
         .result-box.valid .result-value,
         .result-box.valid .result-label,
-        .result-box.valid .result-status {
+        .result-box.valid .result-status,
+        .result-box.valid .result-unit {
             color: white;
         }
 
@@ -205,7 +217,8 @@
 
         .result-box.invalid .result-value,
         .result-box.invalid .result-label,
-        .result-box.invalid .result-status {
+        .result-box.invalid .result-status,
+        .result-box.invalid .result-unit {
             color: white;
         }
 
@@ -247,13 +260,20 @@
             }
 
             .theme-toggle {
-                width: 40px;
-                height: 40px;
-                font-size: 1.1rem;
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+                top: 15px;
+                right: 15px;
             }
 
             .result-value {
                 font-size: 2rem;
+            }
+
+            .result-box {
+                min-height: 100px;
+                padding: 20px;
             }
         }
 
@@ -278,19 +298,28 @@
             background: var(--input-bg);
             color: var(--text-primary);
         }
+
+        /* Séparateur visuel */
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--border-color), transparent);
+            margin: 30px 0;
+        }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span id="themeIcon">🌙</span>
+    </button>
+
     <div class="container">
         <header>
-            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                <span id="themeIcon">🌙</span>
-            </button>
             <h1>Calculateur de Couvertine</h1>
             <p class="subtitle">Optimisation des dimensions</p>
         </header>
 
         <form id="calculatorForm">
+            <!-- 1. Épaisseur Tôle -->
             <div class="form-group">
                 <label for="thickness">Épaisseur Tôle (mm)</label>
                 <select id="thickness" required>
@@ -302,24 +331,32 @@
                 </select>
             </div>
 
-            <div class="input-row">
-                <div class="form-group">
-                    <label for="width">Largeur couvertine H (mm)</label>
-                    <input type="number" id="width" step="0.1" min="0" placeholder="Ex: 300" required>
-                </div>
+            <div class="divider"></div>
 
-                <div class="form-group">
-                    <label for="drop">Retombé couvertine R (mm)</label>
-                    <input type="number" id="drop" step="0.1" min="0" placeholder="Ex: 50" required>
-                </div>
-            </div>
-
+            <!-- 2. Résultat (affiché après épaisseur) -->
             <div class="result-container">
                 <div class="result-box" id="resultBox">
                     <div class="result-label">Développé Total</div>
-                    <div class="result-value" id="resultValue">---</div>
+                    <div class="result-value">
+                        <span id="resultValue">---</span>
+                        <span class="result-unit" id="resultUnit"></span>
+                    </div>
                     <div class="result-status" id="resultStatus"></div>
                 </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- 3. Largeur couvertine H -->
+            <div class="form-group">
+                <label for="width">Largeur couvertine H (mm)</label>
+                <input type="number" id="width" step="0.1" min="0" placeholder="Ex: 300" required>
+            </div>
+
+            <!-- 4. Retombé couvertine R -->
+            <div class="form-group">
+                <label for="drop">Retombé couvertine R (mm)</label>
+                <input type="number" id="drop" step="0.1" min="0" placeholder="Ex: 50" required>
             </div>
         </form>
 
@@ -347,6 +384,7 @@
         const drop = document.getElementById('drop');
         const resultBox = document.getElementById('resultBox');
         const resultValue = document.getElementById('resultValue');
+        const resultUnit = document.getElementById('resultUnit');
         const resultStatus = document.getElementById('resultStatus');
 
         // Gestion du thème
@@ -374,6 +412,7 @@
 
             if (!t || !h || !r) {
                 resultValue.textContent = '---';
+                resultUnit.textContent = '';
                 resultStatus.textContent = '';
                 resultBox.className = 'result-box';
                 return;
@@ -390,6 +429,7 @@
 
             const result = h + (2 * r) + adjustment;
             resultValue.textContent = result.toFixed(2);
+            resultUnit.textContent = 'mm';
 
             // Validation par rapport aux valeurs de référence
             let isValid = true;
