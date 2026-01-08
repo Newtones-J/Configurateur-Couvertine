@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Outil Couvertine – Aide à la vente</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+    }
+    .container {
+        width: 420px;
+        margin: 40px auto;
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    h1 {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-weight: bold;
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+    input, select {
+        width: 80%;
+        padding: 8px;
+        font-size: 14px;
+        text-align: center;
+    }
+    .result {
+        margin-top: 25px;
+        padding: 15px;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 6px;
+        background: #e0e0e0;
+    }
+    .ok {
+        background: #c8e6c9;
+        color: #256029;
+    }
+    .bad {
+        background: #f8d7da;
+        color: #842029;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Configurateur Couvertine</h1>
+
+    <label>Épaisseur Tôle</label>
+    <select id="epaisseur">
+        <option value="1">1 mm</option>
+        <option value="1.5">1.5 mm</option>
+        <option value="2">2 mm</option>
+        <option value="3">3 mm</option>
+    </select>
+
+    <label>Largeur couvertine H (mm)</label>
+    <input type="number" id="H" placeholder="Ex : 200">
+
+    <label>Retombé couvertine R (mm)</label>
+    <input type="number" id="R" placeholder="Ex : 30">
+
+    <div id="result" class="result">—</div>
+</div>
+
+<script>
+    const referenceValues = [];
+    for (let i = 2; i <= 20; i++) {
+        referenceValues.push(1500 / i);
+    }
+
+    function calculer() {
+        const H = parseFloat(document.getElementById("H").value);
+        const R = parseFloat(document.getElementById("R").value);
+        const epaisseur = parseFloat(document.getElementById("epaisseur").value);
+        const resultBox = document.getElementById("result");
+
+        if (isNaN(H) || isNaN(R)) {
+            resultBox.textContent = "—";
+            resultBox.className = "result";
+            return;
+        }
+
+        let offset = 0;
+        if (epaisseur === 1) offset = 14;
+        if (epaisseur === 1.5) offset = 11;
+        if (epaisseur === 2) offset = 10;
+        if (epaisseur === 3) offset = 4;
+
+        const resultat = H + 2 * R + offset;
+        resultBox.textContent = resultat + " mm";
+
+        const optimales = referenceValues.filter(v => v <= resultat);
+        const ref = Math.max(...optimales);
+
+        if (resultat >= ref && resultat <= ref + 9) {
+            resultBox.className = "result bad";
+        } else {
+            resultBox.className = "result ok";
+        }
+    }
+
+    document.getElementById("H").addEventListener("input", calculer);
+    document.getElementById("R").addEventListener("input", calculer);
+    document.getElementById("epaisseur").addEventListener("change", calculer);
+</script>
+
+</body>
+</html>
