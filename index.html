@@ -1,120 +1,422 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Outil Couvertine – Aide à la vente</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-    }
-    .container {
-        width: 420px;
-        margin: 40px auto;
-        background: #ffffff;
-        padding: 25px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        text-align: center;
-    }
-    h1 {
-        font-size: 18px;
-        margin-bottom: 20px;
-    }
-    label {
-        display: block;
-        font-weight: bold;
-        margin-top: 15px;
-        margin-bottom: 5px;
-    }
-    input, select {
-        width: 80%;
-        padding: 8px;
-        font-size: 14px;
-        text-align: center;
-    }
-    .result {
-        margin-top: 25px;
-        padding: 15px;
-        font-size: 20px;
-        font-weight: bold;
-        border-radius: 6px;
-        background: #e0e0e0;
-    }
-    .ok {
-        background: #c8e6c9;
-        color: #256029;
-    }
-    .bad {
-        background: #f8d7da;
-        color: #842029;
-    }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Couvertine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #333333;
+            --text-secondary: #666666;
+            --border-color: #dddddd;
+            --success-bg: #4caf50;
+            --error-bg: #f44336;
+            --input-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --accent: #2196f3;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --success-bg: #2e7d32;
+            --error-bg: #c62828;
+            --input-bg: #3d3d3d;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --accent: #42a5f5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px var(--shadow);
+            padding: 30px;
+            transition: background 0.3s ease;
+        }
+
+        header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.3rem;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+        }
+
+        [data-theme="dark"] select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23b0b0b0' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+        }
+
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result-box {
+            background: var(--input-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-label {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .result-status {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 6px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .result-box.valid {
+            background: var(--success-bg);
+            border-color: var(--success-bg);
+        }
+
+        .result-box.valid .result-value,
+        .result-box.valid .result-label,
+        .result-box.valid .result-status {
+            color: white;
+        }
+
+        .result-box.invalid {
+            background: var(--error-bg);
+            border-color: var(--error-bg);
+            animation: shake 0.5s;
+        }
+
+        .result-box.invalid .result-value,
+        .result-box.invalid .result-label,
+        .result-box.invalid .result-status {
+            color: white;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .info-box {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .info-box h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .info-box p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            .input-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+
+            .result-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animation d'entrée */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Style pour les nombres dans le select */
+        option {
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <header>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span id="themeIcon">🌙</span>
+            </button>
+            <h1>Calculateur de Couvertine</h1>
+            <p class="subtitle">Optimisation des dimensions</p>
+        </header>
 
-<div class="container">
-    <h1>Configurateur Couvertine</h1>
+        <form id="calculatorForm">
+            <div class="form-group">
+                <label for="thickness">Épaisseur Tôle (mm)</label>
+                <select id="thickness" required>
+                    <option value="">Sélectionnez...</option>
+                    <option value="1">1 mm</option>
+                    <option value="1.5">1.5 mm</option>
+                    <option value="2">2 mm</option>
+                    <option value="3">3 mm</option>
+                </select>
+            </div>
 
-    <label>Épaisseur Tôle</label>
-    <select id="epaisseur">
-        <option value="1">1 mm</option>
-        <option value="1.5">1.5 mm</option>
-        <option value="2">2 mm</option>
-        <option value="3">3 mm</option>
-    </select>
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="width">Largeur couvertine H (mm)</label>
+                    <input type="number" id="width" step="0.1" min="0" placeholder="Ex: 300" required>
+                </div>
 
-    <label>Largeur couvertine H (mm)</label>
-    <input type="number" id="H" placeholder="Ex : 200">
+                <div class="form-group">
+                    <label for="drop">Retombé couvertine R (mm)</label>
+                    <input type="number" id="drop" step="0.1" min="0" placeholder="Ex: 50" required>
+                </div>
+            </div>
 
-    <label>Retombé couvertine R (mm)</label>
-    <input type="number" id="R" placeholder="Ex : 30">
+            <div class="result-container">
+                <div class="result-box" id="resultBox">
+                    <div class="result-label">Développé Total</div>
+                    <div class="result-value" id="resultValue">---</div>
+                    <div class="result-status" id="resultStatus"></div>
+                </div>
+            </div>
+        </form>
 
-    <div id="result" class="result">—</div>
-</div>
+        <div class="info-box">
+            <h3>ℹ️ Comment ça marche ?</h3>
+            <p>
+                <strong>Vert :</strong> Dimension optimale pour la découpe<br>
+                <strong>Rouge :</strong> Dimension non optimale (ajustez les valeurs)
+            </p>
+        </div>
+    </div>
 
-<script>
-    const referenceValues = [];
-    for (let i = 2; i <= 20; i++) {
-        referenceValues.push(1500 / i);
-    }
-
-    function calculer() {
-        const H = parseFloat(document.getElementById("H").value);
-        const R = parseFloat(document.getElementById("R").value);
-        const epaisseur = parseFloat(document.getElementById("epaisseur").value);
-        const resultBox = document.getElementById("result");
-
-        if (isNaN(H) || isNaN(R)) {
-            resultBox.textContent = "—";
-            resultBox.className = "result";
-            return;
+    <script>
+        // Valeurs de référence optimales : 1500/2 à 1500/20
+        const referenceValues = [];
+        for (let i = 2; i <= 20; i++) {
+            referenceValues.push(1500 / i);
         }
 
-        let offset = 0;
-        if (epaisseur === 1) offset = 14;
-        if (epaisseur === 1.5) offset = 11;
-        if (epaisseur === 2) offset = 10;
-        if (epaisseur === 3) offset = 4;
+        // Elements DOM
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const thickness = document.getElementById('thickness');
+        const width = document.getElementById('width');
+        const drop = document.getElementById('drop');
+        const resultBox = document.getElementById('resultBox');
+        const resultValue = document.getElementById('resultValue');
+        const resultStatus = document.getElementById('resultStatus');
 
-        const resultat = H + 2 * R + offset;
-        resultBox.textContent = resultat + " mm";
+        // Gestion du thème
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
 
-        const optimales = referenceValues.filter(v => v <= resultat);
-        const ref = Math.max(...optimales);
+        themeToggle.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
 
-        if (resultat >= ref && resultat <= ref + 9) {
-            resultBox.className = "result bad";
-        } else {
-            resultBox.className = "result ok";
+        function updateThemeIcon(theme) {
+            themeIcon.textContent = theme === 'light' ? '🌙' : '☀️';
         }
-    }
 
-    document.getElementById("H").addEventListener("input", calculer);
-    document.getElementById("R").addEventListener("input", calculer);
-    document.getElementById("epaisseur").addEventListener("change", calculer);
-</script>
+        // Calcul automatique
+        function calculate() {
+            const t = parseFloat(thickness.value);
+            const h = parseFloat(width.value);
+            const r = parseFloat(drop.value);
 
+            if (!t || !h || !r) {
+                resultValue.textContent = '---';
+                resultStatus.textContent = '';
+                resultBox.className = 'result-box';
+                return;
+            }
+
+            // Formule selon l'épaisseur
+            let adjustment = 0;
+            switch(t) {
+                case 1: adjustment = 14; break;
+                case 1.5: adjustment = 11; break;
+                case 2: adjustment = 10; break;
+                case 3: adjustment = 4; break;
+            }
+
+            const result = h + (2 * r) + adjustment;
+            resultValue.textContent = result.toFixed(2);
+
+            // Validation par rapport aux valeurs de référence
+            let isValid = true;
+            for (let refValue of referenceValues) {
+                if (result >= refValue && result <= refValue + 9) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            // Mise à jour visuelle
+            if (isValid) {
+                resultBox.className = 'result-box valid';
+                resultStatus.textContent = '✓ Dimension optimale';
+            } else {
+                resultBox.className = 'result-box invalid';
+                resultStatus.textContent = '✗ Dimension non optimale';
+            }
+        }
+
+        // Event listeners
+        thickness.addEventListener('change', calculate);
+        width.addEventListener('input', calculate);
+        drop.addEventListener('input', calculate);
+
+        // Calcul initial si des valeurs sont déjà présentes
+        calculate();
+    </script>
 </body>
 </html>
